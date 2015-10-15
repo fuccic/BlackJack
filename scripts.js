@@ -24,7 +24,7 @@ function randomNumberSuits(){
 };
 
 
-
+//creates one card from the two arrays above. 
 function dealCard(){
 	randomNumberSuits();
 	randomNumberDeck();
