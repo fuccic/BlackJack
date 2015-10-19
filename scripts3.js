@@ -2,8 +2,10 @@
 var playerHand = [];
 var dealerHand = [];
 var randomNumberDeckOutput;
-var playerValue = 0;
+var playerValue = 0; 
 var dealerValue = 0;
+var playerPurse = 1000;
+
 
 
 function card(value, name, suit){
@@ -65,21 +67,72 @@ function drawDealerCards(){
 	};
 }
 
+function printCards(){
+	// $('#dealercard1').html(dealerHand[0].name + dealerHand[0].suit);
+	// $('#dealercard2').html(dealerHand[1].name + dealerHand[1].suit);
+	$('#playercard1').html(playerHand[0].name + playerHand[0].suit);
+		$('#playercard2').html(playerHand[1].name + playerHand[1].suit);
+		console.log(playerHand.length);
+		if (playerHand.length === 3) {
+			$('#playercard3').html(playerHand[2].name + playerHand[2].suit);
+		}	
+		else if (playerHand.length === 4){
+			$('#playercard4').html(playerHand[3].name + playerHand[3].suit);
+		}
+		else if(playerHand.length === 5){
+			$('#playercard5').html(playerHand[4].name + playerHand[4].suit);
+		}
+
+	$('#dealercard1').html(dealerHand[0].name + dealerHand[0].suit);
+		console.log(playerHand.length);
+		if (dealerHand.length === 3) {
+			$('#dealercard3').html(dealerHand[2].name + dealerHand[2].suit);
+		}	
+		else if (dealerHand.length === 4){
+			$('#dealercard4').html(dealerHand[3].name + dealerHand[3].suit);
+		}
+		else if(dealerHand.length === 5){
+			$('#dealercard5').html(dealerHand[4].name + dealerHand[4].suit);
+		}
+}
+
+
+
+
 
 $( "#start" ).click(function() {
 	drawPlayerCards();
 	drawDealerCards();
+	printCards();
 	showButtons();
+	betPrompt();
+	insurance();
 });
 
 
 //======================= //ACE TOKENS
 //		GAME LOGIC
 //=======================
+function findValues(){
+	playerValue = 0;
+	dealerValue = 0;
+	for (var i = 0; i < playerHand.length; i++) {
+		playerValue  = parseInt(playerHand[i].value) + playerValue;
+	};
+	for(var i = 0; i < dealerHand.length; i++) {
+		dealerValue = parseInt(dealerHand[i].value) + dealerValue;
+	}
+	console.log(playerValue);
+	console.log(dealerValue);
+}
+
+
 function showButtons(){
-	if(parseInt(playerHand[0].value) + parseInt(playerHand[1].value) < 21 && parseInt(dealerHand[0].value) + parseInt(dealerHand[1].value) <21){
+	findValues();
+	if(playerValue < 21 && dealerValue < 21){
 		$('#hit').show('slow');
 		$('#stand').show('slow');
+		$('#start').hide('slow');
 	}
 	else if(parseInt(playerHand[0].value) + parseInt(playerHand[1].value) === 21 && parseInt(dealerHand[0].value) + parseInt(dealerHand[1].value) < 21){
 		alert("BLACKJACK");
@@ -95,20 +148,153 @@ $('#hit').click(function(){
 	randomNumberDeck();
 	playerHand.push(myDeck[randomNumberDeckOutput]);
 	myDeck.splice(randomNumberDeckOutput, 1);
+	findValues();
+	printCards();
+	aceCheck();
+	bustCheck();
+	console.log(playerValue);
 })
 
 $('#stand').click(function(){
-
+	dealerTurn();
 })
+ 
+
+function dealerTurn(){
+	if(dealerValue < 17){
+		$('#dealercard2').html(dealerHand[1].name + dealerHand[1].suit);
+		randomNumberDeck();
+		dealerHand.push(myDeck[randomNumberDeckOutput]);
+		myDeck.splice(randomNumberDeckOutput, 1);
+		printCards();
+		findValues();
+		checkForWin();
+			console.log(playerValue);
+
+	}
+	else{
+		$('#dealercard2').html(dealerHand[1].name + dealerHand[1].suit);
+		aceCheck();
+		findValues();
+		checkForWin();
+			console.log(playerValue);
+
+	}
+}
+
+function betPrompt(){
+	var betQuestion = prompt("How much would you like to bet?");
+	$("#bet").html(betQuestion)
+	playerPurse = playerPurse - parseInt(betQuestion)
+	$("#wallet").html(playerPurse)
+}
 
 
+function aceCheck(){
+	console.log(playerHand[1].name)
+	for (var i = 0; i < playerHand.length; i++) {
+		if(playerHand[i].name === "A" && playerValue > 21){
+			playerHand[i].value = 1;
+			findValues();
+		}
+	}
+	for (var i = 0; i < dealerHand.length; i++) {
+		if(dealerHand[i].name === "A" && dealerValue > 21){
+			dealerHand[i].value = 1;
+			findValues();
+		}
+	}
+}
+
+function insurance(){
+	var insuranceQuestion = prompt("Would you like to take insurance");
+	if(dealerHand[0].name === "A"){
+		insuranceQuestion;
+		if (insuranceQuestion === "Yes" && dealerHand[1].value === 10) {
+			alert("Player Wins");
+		}
+	}
+}
+
+// function splitCards(){
+// 	var splitQuestion = prompt("Would you like to split?")
+// 	if(playerHand[0].name === playerHand[1].name){
+// 		splitQuestion 
+// 		if(splitQuestion === "yes" || "Yes"){
+
+// 		}
+// }
 
 
+function checkForWin(){
+	if(playerValue > 21){
+		aceCheck();
+		alert("Bust");
+		$('#dealercard2').html(dealerHand[1].name + dealerHand[1].suit);
+		$('#reset').show('slow');
+	}
+	else if(dealerValue < 17){
+		dealerTurn();
+	}
+		else if(playerValue > dealerValue && dealerValue < 22){
+		aceCheck();
+		alert("Player wins")
+		$('#reset').show('slow');
+		$('#hit').hide('slow');
+		$('#stand').hide('slow');
+	}
+		else if(playerValue < dealerValue && dealerValue < 22){
+			aceCheck();
+			alert("House Wins")
+			$('#hit').hide('slow');
+			$('#stand').hide('slow');
+		}
+		else if (playerValue === 21 && dealerValue != 21){
+			alert("BLACKJACK");
+			$('#reset').show('slow');
+			$('#hit').hide('slow');
+			$('#stand').hide('slow');
+		}
+		else if( dealerValue ===21 && playerValue != 21){
+			alert("House Wins");
+			$('#reset').show('slow');
+			$('#hit').hide('slow');
+			$('#stand').hide('slow');
+		}
+		else if (playerValue === dealerValue && dealerValue >= 17){
+			alert("Push");
+			$('#reset').show('slow');
+			$('#hit').hide('slow');
+			$('#stand').hide('slow');
+				console.log(playerValue);
+
+		}
+
+}
+
+function bustCheck(){
+	if(playerValue > 21){
+		alert("Bust");
+	}
+}
 
 
+$('#reset').click(function(){
+	resetGame();
+});
 
 
-
+function resetGame(){
+	playerHand.length = 0
+	dealerHand.length = 0
+	myDeck = new deck();
+	$(".Player").html("")
+	$(".dealer").html("")
+	drawPlayerCards();
+	drawDealerCards();
+	printCards();
+	showButtons();
+}
 
 
 

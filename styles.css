@@ -5,3 +5,15 @@
 #stand{
 	display: none;
 }
+
+.dealer{
+	color:red;
+}
+
+body{
+	background: green;
+}
+
+#reset{
+	display: none;
+}
