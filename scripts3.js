@@ -5,6 +5,7 @@ var randomNumberDeckOutput;
 var playerValue = 0; 
 var dealerValue = 0;
 var playerPurse = 1000;
+var playerBet = 0;
 
 
 
@@ -133,6 +134,9 @@ function showButtons(){
 		$('#hit').show('slow');
 		$('#stand').show('slow');
 		$('#start').hide('slow');
+		$('#reset').hide('slow');
+
+
 	}
 	else if(parseInt(playerHand[0].value) + parseInt(playerHand[1].value) === 21 && parseInt(dealerHand[0].value) + parseInt(dealerHand[1].value) < 21){
 		alert("BLACKJACK");
@@ -152,7 +156,7 @@ $('#hit').click(function(){
 	printCards();
 	aceCheck();
 	bustCheck();
-	console.log(playerValue);
+	// console.log(playerValue);
 })
 
 $('#stand').click(function(){
@@ -187,6 +191,7 @@ function betPrompt(){
 	$("#bet").html(betQuestion)
 	playerPurse = playerPurse - parseInt(betQuestion)
 	$("#wallet").html(playerPurse)
+	playerBet = parseInt(betQuestion)
 }
 
 
@@ -207,11 +212,13 @@ function aceCheck(){
 }
 
 function insurance(){
-	var insuranceQuestion = prompt("Would you like to take insurance");
 	if(dealerHand[0].name === "A"){
-		insuranceQuestion;
+		var insuranceQuestion = prompt("Would you like to take insurance");
 		if (insuranceQuestion === "Yes" && dealerHand[1].value === 10) {
 			alert("Player Wins");
+		}
+		else{
+			dealerTurn();
 		}
 	}
 }
@@ -229,52 +236,69 @@ function insurance(){
 function checkForWin(){
 	if(playerValue > 21){
 		aceCheck();
-		alert("Bust");
 		$('#dealercard2').html(dealerHand[1].name + dealerHand[1].suit);
-		$('#reset').show('slow');
-	}
-	else if(dealerValue < 17){
-		dealerTurn();
-	}
-		else if(playerValue > dealerValue && dealerValue < 22){
-		aceCheck();
-		alert("Player wins")
+		alert("Bust");
 		$('#reset').show('slow');
 		$('#hit').hide('slow');
 		$('#stand').hide('slow');
 	}
-		else if(playerValue < dealerValue && dealerValue < 22){
-			aceCheck();
-			alert("House Wins")
-			$('#hit').hide('slow');
-			$('#stand').hide('slow');
-		}
-		else if (playerValue === 21 && dealerValue != 21){
-			alert("BLACKJACK");
-			$('#reset').show('slow');
-			$('#hit').hide('slow');
-			$('#stand').hide('slow');
-		}
-		else if( dealerValue ===21 && playerValue != 21){
-			alert("House Wins");
-			$('#reset').show('slow');
-			$('#hit').hide('slow');
-			$('#stand').hide('slow');
-		}
-		else if (playerValue === dealerValue && dealerValue >= 17){
-			alert("Push");
-			$('#reset').show('slow');
-			$('#hit').hide('slow');
-			$('#stand').hide('slow');
-				console.log(playerValue);
-
-		}
+	else if(dealerValue < 17){
+		dealerTurn();
+	}
+	else if(playerValue > dealerValue && dealerValue < 22){
+		aceCheck();
+		$('#gamestatus').html("Player Wins");
+		$('#reset').show('slow');
+		$('#hit').hide('slow');
+		$('#stand').hide('slow');
+		playerPurse = (playerBet * 2) + playerPurse
+		$("#wallet").html(playerPurse)
+	}
+	else if(playerValue < dealerValue && dealerValue < 22){
+		aceCheck();
+		$('#gamestatus').html("House Wins");
+		$('#reset').show('slow');
+		$('#hit').hide('slow');
+		$('#stand').hide('slow');
+		$("#wallet").html(playerPurse)
+	}
+	else if (playerValue === 21 && dealerValue != 21){
+		$('#gamestatus').html("Player Wins");
+		$('#reset').show('slow');
+		$('#hit').hide('slow');
+		$('#stand').hide('slow');
+		playerPurse = (playerBet * 2) + playerPurse
+		$("#wallet").html(playerPurse)
+	}
+	else if( dealerValue ===21 && playerValue != 21){
+		$('#gamestatus').html("House Wins");
+		$('#reset').show('slow');
+		$('#hit').hide('slow');
+		$('#stand').hide('slow');
+	}
+	else if (playerValue === dealerValue && dealerValue >= 17){
+		$('#gamestatus').html("Push");
+		$('#reset').show('slow');
+		$('#hit').hide('slow');
+		$('#stand').hide('slow');
+		playerPurse = (playerBet) + playerPurse
+		$("#wallet").html(playerPurse)
+	}
+	else if (dealerValue > 21){
+		$('#gamestatus').html("Player Wins");
+		$('#reset').show('slow');
+		$('#hit').hide('slow');
+		$('#stand').hide('slow');
+		playerPurse = (playerBet * 2) + playerPurse
+		$("#wallet").html(playerPurse)
+	}
 
 }
 
 function bustCheck(){
 	if(playerValue > 21){
 		alert("Bust");
+		$('#reset').show('slow');
 	}
 }
 
@@ -285,11 +309,13 @@ $('#reset').click(function(){
 
 
 function resetGame(){
-	playerHand.length = 0
-	dealerHand.length = 0
+	playerHand.length = 0;
+	dealerHand.length = 0;
 	myDeck = new deck();
-	$(".Player").html("")
-	$(".dealer").html("")
+	$(".Player").html("");
+	$(".dealer").html("");
+	$('#gamestatus').html("");
+	betPrompt();
 	drawPlayerCards();
 	drawDealerCards();
 	printCards();

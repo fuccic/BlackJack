@@ -17,3 +17,7 @@ body{
 #reset{
 	display: none;
 }
+
+#gamestatus{
+	font-size: 60px;
+}
